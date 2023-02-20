@@ -56,8 +56,8 @@ class Wallet(models.Model):
     )
 
     transactionType=models.CharField(max_length=200, null=True, choices=TRANSACTIONTYPE, blank=True)
-    accountNumber = models.CharField(validators=[MinLengthValidator(10)], unique=True, max_length=10, null=True)
-    accountName = models.CharField(max_length=150, unique=True, null=True)
+    account_number = models.CharField(validators=[MinLengthValidator(10)], unique=True, max_length=10, null=True)
+    account_name = models.CharField(max_length=150, unique=True, null=True)
     amount = models.DecimalField(max_digits=30, decimal_places=2, default=Decimal(0.00))
     user = models.OneToOneField(UserAccount, on_delete=models.CASCADE, null=True, blank=True)
     transaction_date = models.DateTimeField(default=timezone.now)
