@@ -1,7 +1,9 @@
+from decimal import Decimal
 from django.utils import timezone
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.core.validators import MinLengthValidator
 
 class CustomAccountManager(BaseUserManager):
 
@@ -42,10 +44,24 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     objects = CustomAccountManager()
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     def __str__(self):
         return self.email
     
 class Wallet(models.Model):
-    pass
+    TRANSACTIONTYPE=(
+        ('Deposit', 'Deposit'),
+        ('Withdrawal', 'Withdrawal')
+    )
+
+    transactionType=models.CharField(max_length=200, null=True, choices=TRANSACTIONTYPE, blank=True)
+    accountNumber = models.CharField(validators=[MinLengthValidator(10)], unique=True, max_length=10, null=True)
+    accountName = models.CharField(max_length=150, unique=True, null=True)
+    amount = models.DecimalField(max_digits=30, decimal_places=2, default=Decimal(0.00))
+    user = models.OneToOneField(UserAccount, on_delete=models.CASCADE, null=True, blank=True)
+    transaction_date = models.DateTimeField(default=timezone.now)
+    transaction_history = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.user
