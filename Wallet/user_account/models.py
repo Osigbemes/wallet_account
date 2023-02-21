@@ -7,7 +7,7 @@ from django.core.validators import MinLengthValidator
 
 class CustomAccountManager(BaseUserManager):
 
-    def create_superuser(self, first_name, last_name, password, email, **other_fields):
+    def create_superuser(self, first_name, last_name, email, password, **other_fields):
 
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
@@ -20,7 +20,7 @@ class CustomAccountManager(BaseUserManager):
             raise ValueError(
                 'Superuser must be assigned to is_superuser=True.')
 
-        return self.create_user(first_name, last_name, password, email, **other_fields)
+        return self.create_user(first_name, last_name, email, password, **other_fields)
 
     def create_user(self, first_name, last_name, email, password, **other_fields):
 
@@ -51,17 +51,18 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     
 class Wallet(models.Model):
     TRANSACTIONTYPE=(
-        ('Deposit', 'Deposit'),
-        ('Withdrawal', 'Withdrawal')
+        ('Debit', 'Debit'),
+        ('Credit', 'Credit')
     )
 
     transactionType=models.CharField(max_length=200, null=True, choices=TRANSACTIONTYPE, blank=True)
     account_number = models.CharField(validators=[MinLengthValidator(10)], unique=True, max_length=10, null=True)
     account_name = models.CharField(max_length=150, unique=True, null=True)
     amount = models.DecimalField(max_digits=30, decimal_places=2, default=Decimal(0.00))
-    user = models.OneToOneField(UserAccount, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, null=True, blank=True)
     transaction_date = models.DateTimeField(default=timezone.now)
     transaction_history = models.TextField(blank=True)
 
     def __str__(self):
-        return self.user
+        # user = self.user.first_name + ' ' + self.user.last_name
+        return str(self.user)
